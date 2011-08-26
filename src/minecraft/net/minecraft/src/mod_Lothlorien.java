@@ -26,8 +26,8 @@ public class mod_Lothlorien extends BaseMod
 	public TexturePackBase lothlorienPack;
 	public int playerX, playerZ;
 
-    public mod_Lothlorien()
-    {
+	public mod_Lothlorien()
+	{
 		Minecraft mc = ModLoader.getMinecraftInstance();
 		
 		// Locate the normal and Lothlorien texture packs by the first part of their filenames
@@ -48,7 +48,7 @@ public class mod_Lothlorien extends BaseMod
 		} else {
 			ModLoader.getLogger().warning("Cannot find MCME texture packs. Texture switch mod disabled.");
 		}
-    }
+	}
 	
 	@Override
 	public boolean OnTickInGame(Minecraft mc) {
@@ -81,8 +81,8 @@ public class mod_Lothlorien extends BaseMod
 		return true;
 	}
 
-    public String Version()
-    {
-        return "1.7.3-0.1";
-    }
+	public String Version()
+	{
+		return "1.7.3-0.1";
+	}
 }
