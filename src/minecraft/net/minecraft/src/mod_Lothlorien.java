@@ -7,7 +7,8 @@ import net.minecraft.client.Minecraft;
 
 public class mod_Lothlorien extends BaseMod
 {
-	public static String SERVER = "mcme";
+	public static String SERVER = "176.9.10.227";
+	
 	public static int[] lothlorienX = { 5987, 5712, 5606, 5564, 5539, 5594,
 		5682, 5670, 5718, 5707, 5916, 6017, 6250, 6387, 6752, 6847, 6677,
 		6608, 6593, 6579, 6557, 6545, 6501, 6501, 6442, 6429, 6432, 6397,
@@ -25,6 +26,7 @@ public class mod_Lothlorien extends BaseMod
 	public TexturePackBase middleEarthPack;
 	public TexturePackBase lothlorienPack;
 	public int playerX, playerZ;
+	public boolean inGui = false;
 
 	public mod_Lothlorien()
 	{
@@ -44,7 +46,7 @@ public class mod_Lothlorien extends BaseMod
 		
 		// If both texture packs exist, then activate the plugin
 		if(middleEarthPack != null && lothlorienPack != null) {
-			ModLoader.SetInGameHook(this, true, true);
+			ModLoader.SetInGUIHook(this, true, true);
 		} else {
 			ModLoader.getLogger().warning("Cannot find MCME texture packs. Texture switch mod disabled.");
 		}
@@ -52,14 +54,25 @@ public class mod_Lothlorien extends BaseMod
 	
 	@Override
 	public boolean OnTickInGame(Minecraft mc) {
+		Entity player = mc.thePlayer;
 
-		Entity player = mc.thePlayer;		
+		// If the GUI was just closed (like after connecting to a server from the main menu),
+		// check if we're connected to the MCME server.
+		if(inGui) {
+			inGui = false;
+			ModLoader.SetInGUIHook(this, true, true);
+
+			if(!(player instanceof EntityClientPlayerMP) || !mc.gameSettings.lastServer.startsWith(SERVER)) {
+				return false; // Don't run in game hook again until rescheduled by GUI hook
+			}
+		}
+
 		int x = (int) player.posX;
 		int z = (int) player.posZ;
-				
+
 		// Only re-check bounds every whole integer position to reduce CPU load
 		if(x == playerX && z == playerZ) {
-			return true;
+			return true; // Keep game hook running
 		}
 		playerX = x;
 		playerZ = z;
@@ -78,11 +91,20 @@ public class mod_Lothlorien extends BaseMod
 			mc.renderEngine.refreshTextures();
 		}
 		
-		return true;
+		return true; // Keep game hook running
 	}
 
-	public String Version()
-	{
-		return "1.7.3-0.1";
+	@Override
+	public boolean OnTickInGUI(Minecraft mc, GuiScreen screen) {
+		// Re-enable in game hook each time a GUI screen is entered. The game hook will
+		// re-check if we're connected to the MCME server once the GUI screen closes.
+		inGui = true;
+		ModLoader.SetInGameHook(this, true, true);
+
+		return false; // Don't run GUI hook again until re-enabled by game hook
+	}
+	
+	public String Version() {
+		return "1.7.3-0.2";
 	}
 }
