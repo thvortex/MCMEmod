@@ -35,12 +35,19 @@ public class mod_Lothlorien extends BaseMod
 		// Locate the normal and Lothlorien texture packs by the first part of their filenames
 		for(Object x : mc.texturePackList.availableTexturePacks()) {
 			TexturePackBase pack = (TexturePackBase) x;
+			String packFile = pack.texturePackFileName.toLowerCase();
 			
-			if(pack.texturePackFileName.toLowerCase().startsWith("middle earth beta texture pack")) {
-				middleEarthPack = pack;
+			// If there are multiple versions of each texture pack, pick the one with the largest
+			// version number which comes last alphabetically.
+			if(packFile.startsWith("middle earth beta texture pack")) {
+				if(middleEarthPack == null || packFile.compareToIgnoreCase(middleEarthPack.texturePackFileName) > 0) {
+					middleEarthPack = pack;
+				}
 			}
-			if(pack.texturePackFileName.toLowerCase().startsWith("middle earth lothlorien beta")) {
-				lothlorienPack = pack;
+			if(packFile.startsWith("middle earth lothlorien beta")) {
+				if(lothlorienPack == null || packFile.compareToIgnoreCase(lothlorienPack.texturePackFileName) > 0) {
+					lothlorienPack = pack;
+				}
 			}
 		}
 		
