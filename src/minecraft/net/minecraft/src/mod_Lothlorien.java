@@ -9,18 +9,17 @@ public class mod_Lothlorien extends BaseMod
 {
 	public static String SERVER = "176.9.10.227";
 	
-	public static int[] lothlorienX = { 5987, 5712, 5606, 5564, 5539, 5594,
-		5682, 5670, 5718, 5707, 5916, 6017, 6250, 6387, 6752, 6847, 6677,
-		6608, 6593, 6579, 6557, 6545, 6501, 6501, 6442, 6429, 6432, 6397,
-		6253, 6195, 6072
+	public static int[] lothlorienX = { 6036, 5876, 5693, 5527, 5382, 5329,
+		5352, 5491, 5524, 5969, 6105, 6429, 6920, 6990, 7012, 7046, 6988,
+		6653, 6654, 6363, 6167
 	};
-	public static int[] lothlorienZ = { -12417, -12421, -12504, -12576, -13154, -13375,
-		-13526, -13556, -13637, -13745, -14090, -14171, -14238, -14217, -14225, -13944, -13785,
-		-13675, -13655, -13609, -13595, -13561, -13535, -13497, -13414, -13325, -13270, -13026,
-		-12676, -12587, -12445
+
+	public static int[] lothlorienZ = { -12230, -12209, -12230, -12238, -12323, -12434,
+		-13164, -13749, -13960, -14494, -14497, -14442, -14426, -14343, -14222, -13865, -13713,
+		-13137, -12974, -12305, -12217
 	};
 	
-	public static Polygon lothlorienBorder = new Polygon(lothlorienX, lothlorienZ, 31);
+	public static Polygon lothlorienBorder = new Polygon(lothlorienX, lothlorienZ, lothlorienX.length);
 	public static Rectangle lothlorienBorderBB = lothlorienBorder.getBounds();
 
 	public TexturePackBase middleEarthPack;
@@ -112,6 +111,6 @@ public class mod_Lothlorien extends BaseMod
 	}
 	
 	public String Version() {
-		return "1.7.3-0.2";
+		return "1.7.3-0.4";
 	}
 }
