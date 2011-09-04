@@ -25,7 +25,7 @@ public class WorldProviderMoria extends WorldProvider
 		super.generateLightBrightnessTable();
 		for(int i = 0; i <= 15; i++) {
 			double exp = 1.0 / mod_Moria.cfgGamma;
-			lightBrightnessTable[i] = (float) Math.pow(lightBrightnessTable[i], mod_Moria.cfgGamma);
+			lightBrightnessTable[i] = (float) Math.pow(lightBrightnessTable[i], exp);
 		}
 	}
 }

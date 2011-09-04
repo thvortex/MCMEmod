@@ -9,15 +9,9 @@ public class mod_Moria extends BaseMod
 {
 	public static String SERVER = "176.9.10.227";
 	
-	public static int[] moriaX = { 6036, 5876, 5693, 5527, 5382, 5329,
-		5352, 5491, 5524, 5969, 6105, 6429, 6920, 6990, 7012, 7046, 6988,
-		6653, 6654, 6363, 6167
-	};
-
-	public static int[] moriaZ = { -12230, -12209, -12230, -12238, -12323, -12434,
-		-13164, -13749, -13960, -14494, -14497, -14442, -14426, -14343, -14222, -13865, -13713,
-		-13137, -12974, -12305, -12217
-	};
+	// TODO: This should be a more exact polygon
+	public static int[] moriaX = { 3810, 3810, 5531, 5531 };
+	public static int[] moriaZ = { -6957, -11662, -11662, -6957 };
 	
 	public static Polygon moriaBorder = new Polygon(moriaX, moriaZ, moriaX.length);
 	public static Rectangle moriaBorderBB = moriaBorder.getBounds();
@@ -87,7 +81,7 @@ public class mod_Moria extends BaseMod
 				// Disable mod by cancelling all further GUI and in game ticks
 				ModLoader.getLogger().severe("Cannot set World.worldProvider: " + e);
 				ModLoader.SetInGUIHook(this, false, true);
-				return false; // No more game ticks
+				return false;
 			}
 		}
 		inMoria = inMoriaNow;
