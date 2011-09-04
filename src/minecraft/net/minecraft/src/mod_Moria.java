@@ -21,15 +21,16 @@ public class mod_Moria extends BaseMod
 	
 	public static Polygon moriaBorder = new Polygon(moriaX, moriaZ, moriaX.length);
 	public static Rectangle moriaBorderBB = moriaBorder.getBounds();
+	
+	@MLProp(name = "gamma", info = "brightness adjustment: =1.0 no change, <1.0 darker, >1.0 lighter")
+	public static double cfgGamma = 1;
 
 	public int playerX, playerZ;
 	public boolean inGui = false;
 	public boolean inMoria = false;
 	
-	public mod_Moria()
-	{
+	public mod_Moria() {
 		ModLoader.SetInGUIHook(this, true, true);
-		ModLoader.RegisterKey(this, new KeyBinding("key.nosky", 37) ,false);
 	}
 	
 	@Override
