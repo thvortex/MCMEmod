@@ -3,7 +3,7 @@ package net.minecraft.src;
 public class WorldProviderMoria extends WorldProvider
 {
 	public WorldProviderMoria() {
-		isNether = true; // Disables sky and clouds in RenderGlobal.java
+		isNether = !mod_Moria.cfgSkylight; // Disables sky and clouds in RenderGlobal.java
 	}
 
 	// Return the background color used for fog and glClear() as function of celestial angle
