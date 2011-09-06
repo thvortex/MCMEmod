@@ -9,15 +9,17 @@ public class WorldProviderMoria extends WorldProvider
 	// Return the background color used for fog and glClear() as function of celestial angle
 	@Override
 	public Vec3D func_4096_a(float f, float f1) {
-		return Vec3D.createVector(0, 0, 0);
+		return mod_Moria.cfgSkylight ? super.func_4096_a(f, f1) : Vec3D.createVector(0, 0, 0);
 	}
 
 	// The sun's position affects the sky color returned by above function. Using 0.5 here makes it
-	// the darkest possible. This also disables all skylight on the map, but that's not a problem for
-	// underground locations like Moria.
+	// the darkest possible. This also disables all skylight on the map, which is a problem for
+	// certain locations in Moria that have light shafts in the ceiling. If the "skylight" config
+	// option is true, using 6000 for time-of-day forces the sun's position to high noon, and will
+	// enable full skylight (even if the server's time is night) along with a blue/gray background color.
 	@Override
 	public float calculateCelestialAngle(long l, float f) {
-		return 0.5F;
+		return mod_Moria.cfgSkylight ? super.calculateCelestialAngle(6000, f) : 0.5F;
 	}
 	
 	@Override

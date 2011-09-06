@@ -18,6 +18,8 @@ public class mod_Moria extends BaseMod
 	
 	@MLProp(name = "gamma", info = "brightness adjustment: =1.0 no change, <1.0 darker, >1.0 lighter")
 	public static double cfgGamma = 1;
+	@MLProp(name = "skylight", info = "if true, enable skylight and dark blue background color")
+	public static boolean cfgSkylight = false;
 
 	public int playerX, playerZ;
 	public boolean inGui = false;
@@ -100,6 +102,6 @@ public class mod_Moria extends BaseMod
 	}
 	
 	public String Version() {
-		return "1.7.3-0.1";
+		return "1.7.3-0.2";
 	}
 }
