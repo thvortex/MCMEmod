@@ -1,6 +1,8 @@
 package net.minecraft.src;
 
 import java.util.List;
+import java.net.Socket;
+import java.net.InetAddress;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import net.minecraft.client.Minecraft;
@@ -59,7 +61,7 @@ public class mod_Lothlorien extends BaseMod
 	}
 	
 	@Override
-	public boolean OnTickInGame(Minecraft mc) {
+	public boolean OnTickInGame(float tick, Minecraft mc) {
 		Entity player = mc.thePlayer;
 
 		// If the GUI was just closed (like after connecting to a server from the main menu),
@@ -68,8 +70,20 @@ public class mod_Lothlorien extends BaseMod
 			inGui = false;
 			ModLoader.SetInGUIHook(this, true, true);
 
-			if(!(player instanceof EntityClientPlayerMP) || !mc.gameSettings.lastServer.startsWith(SERVER)) {
+			if(!(player instanceof EntityClientPlayerMP)) {
 				return false; // Don't run in game hook again until rescheduled by GUI hook
+			}			
+			
+			try {
+				if(!isMCMEServer((EntityClientPlayerMP) player)) {
+					return false; // Don't run in game hook again until rescheduled by GUI hook
+				}
+			}
+			catch(NoSuchFieldException e) {
+				// Disable mod by cancelling all further GUI and in game ticks
+				ModLoader.getLogger().severe("Cannot get private field: " + e);
+				ModLoader.SetInGUIHook(this, false, true);
+				return false;
 			}
 		}
 
@@ -101,16 +115,27 @@ public class mod_Lothlorien extends BaseMod
 	}
 
 	@Override
-	public boolean OnTickInGUI(Minecraft mc, GuiScreen screen) {
+	public boolean OnTickInGUI(float tick, Minecraft mc, GuiScreen screen) {
 		// Re-enable in game hook each time a GUI screen is entered. The game hook will
 		// re-check if we're connected to the MCME server once the GUI screen closes.
 		inGui = true;
 		ModLoader.SetInGameHook(this, true, true);
-
+		
 		return false; // Don't run GUI hook again until re-enabled by game hook
 	}
 	
+	public boolean isMCMEServer(EntityClientPlayerMP player) throws NoSuchFieldException {
+		// NetClientHandler.netManager in MCP is "g" in obfuscated code
+		NetworkManager manager = (NetworkManager) ModLoader.getPrivateValue(NetClientHandler.class, player.sendQueue, "g");
+		
+		// NetworkManager.networkSocket in MCP is "h" in obfuscated code
+		Socket socket = (Socket) ModLoader.getPrivateValue(NetworkManager.class, manager, "h");
+
+		InetAddress address = socket.getInetAddress();
+		return address != null && address.getHostAddress().equals(SERVER);
+	}
+	
 	public String Version() {
-		return "1.7.3-0.4";
+		return "1.8.1-0.5";
 	}
 }
