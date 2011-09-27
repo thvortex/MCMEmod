@@ -25,6 +25,7 @@ public class WorldProviderMoria extends WorldProvider
 	@Override
 	protected void generateLightBrightnessTable() {
 		super.generateLightBrightnessTable();
+		lightBrightnessTable[0] = 0.05F; // Minecraft 1.8 made this 0 which breaks gamma for darkest blocks
 		for(int i = 0; i <= 15; i++) {
 			double exp = 1.0 / mod_Moria.cfgGamma;
 			lightBrightnessTable[i] = (float) Math.pow(lightBrightnessTable[i], exp);
