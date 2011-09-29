@@ -18,14 +18,14 @@ public class mod_Moria extends BaseMod
 	public static Polygon moriaBorder = new Polygon(moriaX, moriaZ, moriaX.length);
 	public static Rectangle moriaBorderBB = moriaBorder.getBounds();
 	
-	@MLProp(name = "gamma", info = "brightness adjustment: =1.0 no change, <1.0 darker, >1.0 lighter")
-	public static double cfgGamma = 1;
+	@MLProp(name = "ambient", info = "brightness adjustment: 0 for no change", min = 0, max = 15)
+	public static int ambient = 0;
 	@MLProp(name = "skylight", info = "if true, enable skylight and dark blue background color")
 	public static boolean cfgSkylight = false;
 
 	public int playerX, playerZ;
 	public boolean inGui = false;
-	public boolean inMoria = false;
+	public static int inMoria = 0;
 	
 	public mod_Moria() {
 		ModLoader.SetInGUIHook(this, true, true);
@@ -44,7 +44,6 @@ public class mod_Moria extends BaseMod
 			if(!(player instanceof EntityClientPlayerMP)) {
 				return false; // Don't run in game hook again until rescheduled by GUI hook
 			}
-
 			try {
 				if(!isMCMEServer((EntityClientPlayerMP) player)) {
 					return false; // Don't run in game hook again until rescheduled by GUI hook
@@ -55,7 +54,19 @@ public class mod_Moria extends BaseMod
 				ModLoader.getLogger().severe("Cannot get private field: " + e);
 				ModLoader.SetInGUIHook(this, false, true);
 				return false;
-			}			
+			}
+
+			// Permanently install ChunkManagerMoria in the MCME world if not already installed.
+			// This class will enforce an ambient light level on every block while in Moria.
+			IChunkProvider chunkProvider = mc.theWorld.chunkProvider;
+			if(chunkProvider != null && !(chunkProvider instanceof ChunkProviderMoria)) {
+				ModLoader.getLogger().fine("MCME server detected; Moria \"no sky\" mod activated");
+				mc.theWorld.chunkProvider = new ChunkProviderMoria(chunkProvider);
+				
+				// When first connecting to MCME, force a check of the player's coordinates. Also
+				// force a switch of WorldProviders if we are already in Moria on server login.
+				playerX = playerZ = inMoria = -1;
+			}
 		}
 
 		int x = (int) player.posX;
@@ -69,25 +80,25 @@ public class mod_Moria extends BaseMod
 		playerZ = z;
 
 		// Perform cheaper bounding box check before full polygon check
-		boolean inMoriaNow;
+		int inMoriaNow;
 		if(moriaBorderBB.contains(x, z) && moriaBorder.contains(x, z)) {
-			inMoriaNow = true;
+			inMoriaNow = 1;
 		} else {
-			inMoriaNow = false;
+			inMoriaNow = 0;
 		}
 		
-		// Switch WorldProviders when entering or leaving Moria
 		if(inMoriaNow != inMoria) {
 			WorldProvider provider;
 
-			if(inMoriaNow) {
+			// Switch WorldProviders when entering or leaving Moria
+			if(inMoriaNow == 1) {
 				provider = new WorldProviderMoria();
 			} else {
 				int dimension = mc.theWorld.worldInfo.getDimension();
 				provider = WorldProvider.getProviderForDimension(dimension);
 			}
 			provider.registerWorld(mc.theWorld);
-
+						
 			try {
 				// MCP World.worldProvider is World.y in minecraft.jar
 				ModLoader.setPrivateValue(World.class, mc.theWorld, "y", provider);
@@ -98,6 +109,9 @@ public class mod_Moria extends BaseMod
 				ModLoader.SetInGUIHook(this, false, true);
 				return false;
 			}
+			
+			// Force all chunks to re-render and use updated skylight values
+			mc.renderGlobal.loadRenderers();
 		}
 		inMoria = inMoriaNow;
 		
@@ -126,6 +140,6 @@ public class mod_Moria extends BaseMod
 	}
 	
 	public String Version() {
-		return "1.8.1-0.3";
+		return "1.8.1-0.2.99995";
 	}
 }

@@ -22,6 +22,7 @@ public class WorldProviderMoria extends WorldProvider
 		return mod_Moria.cfgSkylight ? super.calculateCelestialAngle(6000, f) : 0.5F;
 	}
 	
+	/*
 	@Override
 	protected void generateLightBrightnessTable() {
 		super.generateLightBrightnessTable();
@@ -31,4 +32,5 @@ public class WorldProviderMoria extends WorldProvider
 			lightBrightnessTable[i] = (float) Math.pow(lightBrightnessTable[i], exp);
 		}
 	}
+	*/
 }
