@@ -15,10 +15,9 @@ public class ChunkProviderMoria implements IChunkProvider
     public Chunk provideChunk(int i, int j) {
 		Chunk chunk = chunkProvider.provideChunk(i, j);
 
-		// NibbleArrayMoria will override the true skylight levels with ambient while inside Moria
+		// NibbleArrayMoria overrides true skylight levels with minimum ambient while inside Moria
 		if(!(chunk.skylightMap instanceof NibbleArrayMoria)) {
 			chunk.skylightMap = new NibbleArrayMoria(chunk.skylightMap);
-			chunksSeen.put(chunk, true);
 		}
 
 		return chunk;
