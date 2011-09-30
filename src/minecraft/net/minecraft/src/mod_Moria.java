@@ -20,7 +20,7 @@ public class mod_Moria extends BaseMod
 	
 	@MLProp(name = "ambient", info = "brightness adjustment: 0 for no change", min = 0, max = 15)
 	public static int ambient = 0;
-	@MLProp(name = "skylight", info = "if true, enable skylight and dark blue background color")
+	@MLProp(name = "skylight", info = "if true, enable normal sky/fog colors")
 	public static boolean cfgSkylight = false;
 
 	public int playerX, playerZ;
@@ -60,7 +60,7 @@ public class mod_Moria extends BaseMod
 			// This class will enforce an ambient light level on every block while in Moria.
 			IChunkProvider chunkProvider = mc.theWorld.chunkProvider;
 			if(chunkProvider != null && !(chunkProvider instanceof ChunkProviderMoria)) {
-				ModLoader.getLogger().fine("MCME server detected; Moria \"no sky\" mod activated");
+				ModLoader.getLogger().fine("MCME server detected; Moria mod activated");
 				mc.theWorld.chunkProvider = new ChunkProviderMoria(chunkProvider);
 				
 				// When first connecting to MCME, force a check of the player's coordinates. Also
@@ -101,17 +101,17 @@ public class mod_Moria extends BaseMod
 						
 			try {
 				// MCP World.worldProvider is World.y in minecraft.jar
-				ModLoader.setPrivateValue(World.class, mc.theWorld, "y", provider);
+				ModLoader.setPrivateValue(World.class, mc.theWorld, "y", provider);				
+
+				// Force WorldRenderers to update and use changed skylight provided by NibbleArrayMoria
+				updateWorldRenderers(mc);
 			}
 			catch(NoSuchFieldException e) {
 				// Disable mod by cancelling all further GUI and in game ticks
-				ModLoader.getLogger().severe("Cannot set World.worldProvider: " + e);
+				ModLoader.getLogger().severe("Cannot access private field: " + e);
 				ModLoader.SetInGUIHook(this, false, true);
 				return false;
 			}
-			
-			// Force all chunks to re-render and use updated skylight values
-			mc.renderGlobal.loadRenderers();
 		}
 		inMoria = inMoriaNow;
 		
@@ -139,7 +139,24 @@ public class mod_Moria extends BaseMod
 		return address != null && address.getHostAddress().equals(SERVER);
 	}
 	
+	public void updateWorldRenderers(Minecraft mc) throws NoSuchFieldException {
+		// MCP RenderGlobal.worldRenderersToUpdate is "k" in obfuscated code
+		List<WorldRenderer> toUpdate = (List) ModLoader.getPrivateValue(RenderGlobal.class, mc.renderGlobal, "k");
+
+		// MCP RenderGlobal.worldRenderers is "m" in obfuscated code
+		WorldRenderer[] rendererArray = (WorldRenderer[]) ModLoader.getPrivateValue(RenderGlobal.class, mc.renderGlobal, "m");
+		
+		// Force all chunks to re-render and use updated skylight values
+		for(int i = 0; i < rendererArray.length; i++) {
+			WorldRenderer renderer = rendererArray[i];
+			if(!renderer.needsUpdate) {
+				renderer.needsUpdate = true;
+				toUpdate.add(renderer);
+			}
+		}
+	}
+	
 	public String Version() {
-		return "1.8.1-0.2.99995";
+		return "1.8.1-0.3";
 	}
 }
