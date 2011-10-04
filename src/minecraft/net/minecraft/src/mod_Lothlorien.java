@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 
 public class mod_Lothlorien extends BaseMod
 {
-	public static String SERVER = "176.9.10.227";
+	public static String[] SERVERS = { "176.9.10.227", "88.198.12.168" };
 	
 	public static int[] lothlorienX = { 6036, 5876, 5693, 5527, 5382, 5329,
 		5352, 5491, 5524, 5969, 6105, 6429, 6920, 6990, 7012, 7046, 6988,
@@ -131,11 +131,20 @@ public class mod_Lothlorien extends BaseMod
 		// NetworkManager.networkSocket in MCP is "h" in obfuscated code
 		Socket socket = (Socket) ModLoader.getPrivateValue(NetworkManager.class, manager, "h");
 
+		// Returned address can be null if socket is no longer connected
 		InetAddress address = socket.getInetAddress();
-		return address != null && address.getHostAddress().equals(SERVER);
+		if(address != null) {
+			String hostAddress = address.getHostAddress();
+			for(int i = 0; i < SERVERS.length; i++) {
+				if(hostAddress.equals(SERVERS[i])) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	public String Version() {
-		return "1.8.1-0.5";
+		return "1.8.1-0.6";
 	}
 }
