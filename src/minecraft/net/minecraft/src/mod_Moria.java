@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 
 public class mod_Moria extends BaseMod
 {
-	public static String SERVER = "176.9.10.227";
+	public static String[] SERVERS = { "176.9.10.227", "88.198.12.168" };
 	
 	// TODO: This should be a more exact polygon
 	public static int[] moriaX = { 3810, 3810, 5531, 5531 };
@@ -135,8 +135,17 @@ public class mod_Moria extends BaseMod
 		// NetworkManager.networkSocket in MCP is "h" in obfuscated code
 		Socket socket = (Socket) ModLoader.getPrivateValue(NetworkManager.class, manager, "h");
 
+		// Returned address can be null if socket is no longer connected
 		InetAddress address = socket.getInetAddress();
-		return address != null && address.getHostAddress().equals(SERVER);
+		if(address != null) {
+			String hostAddress = address.getHostAddress();
+			for(int i = 0; i < SERVERS.length; i++) {
+				if(hostAddress.equals(SERVERS[i])) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	public void updateWorldRenderers(Minecraft mc) throws NoSuchFieldException {
@@ -157,6 +166,6 @@ public class mod_Moria extends BaseMod
 	}
 	
 	public String Version() {
-		return "1.8.1-0.3";
+		return "1.8.1-0.4";
 	}
 }
