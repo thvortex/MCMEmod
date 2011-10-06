@@ -28,6 +28,7 @@ public class mod_Lothlorien extends BaseMod
 	public TexturePackBase lothlorienPack;
 	public int playerX, playerZ;
 	public boolean inGui = false;
+	public static int inLothlorien = -1;
 
 	public mod_Lothlorien()
 	{
@@ -71,11 +72,13 @@ public class mod_Lothlorien extends BaseMod
 			ModLoader.SetInGUIHook(this, true, true);
 
 			if(!(player instanceof EntityClientPlayerMP)) {
+				inLothlorien = -1; // Force texture switch on server reconnect
 				return false; // Don't run in game hook again until rescheduled by GUI hook
 			}			
 			
 			try {
 				if(!isMCMEServer((EntityClientPlayerMP) player)) {
+					inLothlorien = -1; // Force texture pack switch on server reconnect
 					return false; // Don't run in game hook again until rescheduled by GUI hook
 				}
 			}
@@ -85,30 +88,42 @@ public class mod_Lothlorien extends BaseMod
 				ModLoader.SetInGUIHook(this, false, true);
 				return false;
 			}
+			
+			if(inLothlorien == -1) {
+				ModLoader.getLogger().fine("MCME server detected; Lothlorien mod activated");
+			}
 		}
 
 		int x = (int) player.posX;
 		int z = (int) player.posZ;
 
 		// Only re-check bounds every whole integer position to reduce CPU load
-		if(x == playerX && z == playerZ) {
+		if(x == playerX && z == playerZ && inLothlorien != -1) {
 			return true; // Keep game hook running
 		}
 		playerX = x;
 		playerZ = z;
 
 		// Perform cheaper bounding box check before full polygon check
-		TexturePackBase desiredPack;
+		int inLothlorienNow;
 		if(lothlorienBorderBB.contains(x, z) && lothlorienBorder.contains(x, z)) {
-			desiredPack = lothlorienPack;
+			inLothlorienNow = 1;
 		} else {
-			desiredPack = middleEarthPack;
+			inLothlorienNow = 0;
 		}
-		
-		// Switch to the desired texture pack if it's not currently selected
-		if(desiredPack != mc.texturePackList.selectedTexturePack) {
-			mc.texturePackList.setTexturePack(desiredPack);
-			mc.renderEngine.refreshTextures();
+
+		// Only perform texture switch when crossing the Lothlorien boundry or when
+		// first connected to the MCME server.
+		if(inLothlorien != inLothlorienNow) {
+			TexturePackBase desiredPack = inLothlorienNow == 1 ? lothlorienPack : middleEarthPack;
+			
+			// Switch to the desired texture pack if it's not currently selected
+			if(desiredPack != mc.texturePackList.selectedTexturePack) {
+				mc.texturePackList.setTexturePack(desiredPack);
+				mc.renderEngine.refreshTextures();
+			}
+			
+			inLothlorien = inLothlorienNow;
 		}
 		
 		return true; // Keep game hook running
