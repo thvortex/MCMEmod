@@ -15,6 +15,16 @@ public class mod_Moria extends BaseMod
 	public static int[] moriaX = { 3810, 3810, 5531, 5531 };
 	public static int[] moriaZ = { -6957, -11662, -11662, -6957 };
 	
+	// East/West coordinates at which to start brightening the sky color when visible out through the
+	// Moria exits, and the distance from these coordinates when the sky reaches full brightness.
+	public static double moriaExitWest = -6992;
+	public static double moriaExitEast = -11585;
+	public static double moriaExitDistance = 25;
+	
+	// Compass directions in degrees for checking player's heading
+	public static float NORTH = 90;
+	public static float SOUTH = 270;
+	
 	public static Polygon moriaBorder = new Polygon(moriaX, moriaZ, moriaX.length);
 	public static Rectangle moriaBorderBB = moriaBorder.getBounds();
 	
@@ -26,6 +36,7 @@ public class mod_Moria extends BaseMod
 	public int playerX, playerZ;
 	public boolean inGui = false;
 	public static int inMoria = 0;
+	public static double skyBlend;
 	
 	public mod_Moria() {
 		ModLoader.SetInGUIHook(this, true, true);
@@ -71,7 +82,12 @@ public class mod_Moria extends BaseMod
 
 		int x = (int) player.posX;
 		int z = (int) player.posZ;
-
+		
+		// If currently in Moria, check if player is looking out through one of the exits
+		if(inMoria == 1) {
+			updateSkyBlend(player.posZ, player.rotationYaw);
+		}
+		
 		// Only re-check bounds every whole integer position to reduce CPU load
 		if(x == playerX && z == playerZ) {
 			return true; // Keep game hook running
@@ -146,6 +162,31 @@ public class mod_Moria extends BaseMod
 			}
 		}
 		return false;
+	}
+	
+	// Set a blending factor >0 for brightening the sky color when the player can see outside through
+	// one of Moria's exits. Player must be looking either east or west out of the appropriate exit.
+	// Otherwise set 0 to produce the solid black sky color used everywhere else in Moria.
+	public void updateSkyBlend(double z, float yaw) {
+		double distance = 0.0;
+		
+		// Minecraft's yaw angle is a cumulative total so normalize it here
+		yaw %= 360;
+		if(yaw < 0) {
+			yaw += 360;
+		}
+	
+		// West=0/360 degrees and 0-90 or 270-360 degrees is the western hemisphere
+		if(z > moriaExitWest && (yaw < NORTH || yaw > SOUTH)) {
+			distance = (z - moriaExitWest) / moriaExitDistance;
+		}
+		
+		// East=180 degrees and 90-270 degrees is the eastern hemisphere
+		else if(z < moriaExitEast && yaw > NORTH && yaw < SOUTH) {
+			distance = (moriaExitEast - z) / moriaExitDistance;
+		}
+		
+		skyBlend = distance > 1.0 ? 1.0 : distance;
 	}
 	
 	public void updateWorldRenderers(Minecraft mc) throws NoSuchFieldException {
