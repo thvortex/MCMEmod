@@ -30,7 +30,8 @@ public class mod_Lothlorien extends BaseMod
 	public boolean inGui = false;
 	public static int inLothlorien = -1;
 
-	public mod_Lothlorien()
+	@Override
+	public void load()
 	{
 		Minecraft mc = ModLoader.getMinecraftInstance();
 		
@@ -159,7 +160,8 @@ public class mod_Lothlorien extends BaseMod
 		return false;
 	}
 	
-	public String Version() {
-		return "1.8.1-0.6";
+	@Override
+	public String getVersion() {
+		return "1.0.0-0.7";
 	}
 }
