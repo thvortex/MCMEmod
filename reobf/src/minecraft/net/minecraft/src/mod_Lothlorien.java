@@ -141,11 +141,11 @@ public class mod_Lothlorien extends BaseMod
 	}
 	
 	public boolean isMCMEServer(EntityClientPlayerMP player) throws NoSuchFieldException {
-		// NetClientHandler.netManager in MCP is "g" in obfuscated code
-		NetworkManager manager = (NetworkManager) ModLoader.getPrivateValue(NetClientHandler.class, player.sendQueue, "g");
+		// NetClientHandler.netManager in MCP
+		NetworkManager manager = (NetworkManager) ModLoader.getPrivateValue(NetClientHandler.class, player.sendQueue, "field_1213_d");
 		
-		// NetworkManager.networkSocket in MCP is "h" in obfuscated code
-		Socket socket = (Socket) ModLoader.getPrivateValue(NetworkManager.class, manager, "h");
+		// NetworkManager.networkSocket in MCP
+		Socket socket = (Socket) ModLoader.getPrivateValue(NetworkManager.class, manager, "field_12258_e");
 
 		// Returned address can be null if socket is no longer connected
 		InetAddress address = socket.getInetAddress();
